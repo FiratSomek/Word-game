@@ -1,0 +1,75 @@
+.letters-list {
+  display: flex;
+  margin-top: 50px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.letters {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  height: 50px;
+  border: 1px solid black;
+  border-radius: 50%;
+  margin: 10px;
+  padding: 20px;
+  font-size: 25px;
+  font-weight: bold;
+  transition: background-color 1s ease;
+}
+.descriptons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  width: 80%;
+  height: 100px;
+  border: 1px solid lightslategray;
+  border-radius: 10px;
+  font-size: large;
+  font-weight: bold;
+  margin-top: 50px;
+}
+.selected-letter {
+  background-color: #1976d2;
+  color: #fff;
+}
+.transparent {
+  opacity: 0.4;
+}
+.user-answers {
+  text-align: center;
+}
+
+.answer-input {
+  width: 60%;
+  padding: 5px;
+  font-size: large;
+  letter-spacing: 2px;
+  text-align: end;
+  margin-top: 20px;
+  border-radius: 10px;
+}
+.answer-input:focus {
+  border: 1px solid black;
+  box-shadow: 0 0 2px 3px rgb(95, 94, 94);
+}
+
+.correct {
+  background-color: rgb(74, 230, 54);
+  box-shadow: 0 0 2px 3px rgb(74, 230, 54);
+  border: none;
+}
+.wrong {
+  background-color: rgba(233, 45, 3, 0.852);
+  box-shadow: 0 0 2px 3px rgba(233, 45, 3, 0.852);
+  border: none;
+}
+.pass {
+  background-color: rgb(249, 241, 0);
+  box-shadow: 0 0 2px 3px rgb(249, 241, 0);
+  border: none;
+}
