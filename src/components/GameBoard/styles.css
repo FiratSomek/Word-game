@@ -34,7 +34,8 @@
   margin-top: 50px;
 }
 .selected-letter {
-  background-color: #1976d2;
+  /* background-color: #1976d2; */
+  background-color: black;
   color: #fff;
 }
 .transparent {
