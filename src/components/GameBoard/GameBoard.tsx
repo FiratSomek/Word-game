@@ -3,7 +3,7 @@ import { quizData } from "../../data";
 import { QuizDataItem } from "../../data";
 import "./styles.css";
 import { Typography } from "@mui/material";
-import { Preview } from "@mui/icons-material";
+import { Console } from "console";
 
 interface ClassItem {
   id: number;
@@ -12,63 +12,100 @@ interface ClassItem {
 
 export const GameBoard = () => {
   const [questions, setQuestions] = useState<QuizDataItem[]>(quizData);
-  const [currentDescriptionIndex, setCurrentDescriptionIndex] = useState(0);
+  const [currentDescriptionId, setCurrentDescriptionId] = useState<number>(1);
   const [answer, setAnswer] = useState("");
-  const [getClass, setGetClass] = useState<ClassItem[]>([]);
+  const [answeredQuestions, setAnsweredQuestions] = useState<ClassItem[]>([]);
+  const [passClasses, setPassClasses] = useState<ClassItem[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const getPassClass = () => {
-      return getClass.filter((item) => item.class === "pass");
-    };
 
-    const passClasses = getPassClass();
-    console.log(passClasses);
+    const isAnswerCorrect =
+      answer.trim().toLowerCase() ===
+      questions
+        .filter((question) => question.id === currentDescriptionId)[0]
+        .word.trim()
+        .toLowerCase();
 
-    if (currentDescriptionIndex !== quizData.length - 1) {
+    const isPassQuestion = passClasses.find(
+      (item) => item.id === currentDescriptionId
+    );
+
+    if (isPassQuestion === undefined) {
       if (answer.trim() !== "") {
-        const isAnswerCorrect =
-          answer.trim().toLowerCase() ===
-          questions[currentDescriptionIndex].word.trim().toLowerCase();
         if (isAnswerCorrect) {
-          setGetClass((prevClasses) => [
-            ...prevClasses,
+          setAnsweredQuestions((prev) => [
+            ...prev,
             {
-              id: questions[currentDescriptionIndex].id,
+              id: currentDescriptionId,
               class: "correct",
             },
           ]);
         } else {
-          setGetClass((prevClasses) => [
-            ...prevClasses,
+          setAnsweredQuestions((prev) => [
+            ...prev,
             {
-              id: questions[currentDescriptionIndex].id,
+              id: currentDescriptionId,
               class: "wrong",
             },
           ]);
         }
+        setAnswer("");
       } else {
-        setGetClass((prevClasses) => [
-          ...prevClasses,
+        setPassClasses((prev) => [
+          ...prev,
           {
-            id: questions[currentDescriptionIndex].id,
+            id: currentDescriptionId,
             class: "pass",
           },
         ]);
+        setAnswer("");
       }
-      setAnswer("");
-      setCurrentDescriptionIndex((prevIndex) => prevIndex + 1);
     } else {
+      if (answer.trim() !== "") {
+        if (isAnswerCorrect) {
+          setAnsweredQuestions((prev) => [
+            ...prev,
+            {
+              id: currentDescriptionId,
+              class: "correct",
+            },
+          ]);
+        } else {
+          setAnsweredQuestions((prev) => [
+            ...prev,
+            {
+              id: currentDescriptionId,
+              class: "wrong",
+            },
+          ]);
+        }
+        setPassClasses((prev) =>
+          prev.filter((item) => item.id !== currentDescriptionId)
+        );
+        setAnswer("");
+      } else {
+        return;
+      }
     }
-    // else if (
-    //   currentDescriptionIndex === quizData.length - 1 &&
-    //   passClasses.length > 0
-    // ) {
-    // } else if (
-    //   currentDescriptionIndex === quizData.length - 1 &&
-    //   passClasses.length === 0
-    // ) {
-    // }
+
+    //set the currentIndex here
+    if (currentDescriptionId === questions.length) {
+      if (passClasses.length > 0) {
+        const nextPassQuestion = passClasses.find(
+          (item) => item.class === "pass"
+        );
+
+        if (nextPassQuestion) {
+          const nextIndex = nextPassQuestion.id;
+          setCurrentDescriptionId(nextIndex);
+        }
+      } else {
+        // setQuestions(quizData);
+      }
+    } else {
+      setCurrentDescriptionId((prevIndex) => prevIndex + 1);
+    }
   };
 
   return (
@@ -79,9 +116,14 @@ export const GameBoard = () => {
             <li
               key={question.id}
               className={`letters ${
-                getClass.find((item) => item.id === question.id)?.class || ""
-              } ${
-                question.id === questions[currentDescriptionIndex].id
+                answeredQuestions.find((item) => item.id === question.id)
+                  ?.class || ""
+              }
+              ${
+                passClasses.find((item) => item.id === question.id)?.class || ""
+              }
+              ${
+                question.id === currentDescriptionId
                   ? "selected-letter"
                   : "transparent"
               } `}
@@ -94,7 +136,11 @@ export const GameBoard = () => {
       <div>
         <div className="descriptons">
           <Typography className="description">
-            {questions[currentDescriptionIndex].description}
+            {
+              questions.filter(
+                (question) => question.id === currentDescriptionId
+              )[0].description
+            }
           </Typography>
         </div>
       </div>
