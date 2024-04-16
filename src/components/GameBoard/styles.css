@@ -74,3 +74,8 @@
   box-shadow: 0 0 2px 3px rgb(249, 241, 0);
   border: none;
 }
+.answer-marks {
+  display: flex;
+  padding: 5px;
+  margin: 5px;
+}

@@ -7,8 +7,8 @@ import logo from "../../assets/Black and White Gaming Logo .jpg";
 export const Home = () => {
   return (
     <div className="main-board-container">
-      <div>
-        <img src={logo} alt="" />
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <img src={logo} alt="#" className="logo" />
       </div>
       <div>
         {" "}
