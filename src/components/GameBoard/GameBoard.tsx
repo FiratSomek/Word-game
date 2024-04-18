@@ -15,12 +15,10 @@ import Brightness1Icon from "@mui/icons-material/Brightness1";
 
 interface CountdownProps {
   countdown: number;
-  initialCountdown: number;
 }
 
 export const GameBoard: React.FC<CountdownProps> = ({
   countdown,
-  initialCountdown,
 }) => {
   const [questions, setQuestions] = useState<QuizDataItem[]>(quizData);
   const [currentDescriptionId, setCurrentDescriptionId] = useState<number>(1);
@@ -129,7 +127,7 @@ export const GameBoard: React.FC<CountdownProps> = ({
             {
               questions.filter(
                 (question) => question.id === currentDescriptionId
-              )[0].description
+              )[0]?.description || ''
             }
           </Typography>
         </div>

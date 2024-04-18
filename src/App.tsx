@@ -8,7 +8,7 @@ import { CountDown } from "./CountDown";
 import React, { useState } from "react";
 
 const App: React.FC = () => {
-  const initialCountdown = 10;
+  const initialCountdown = 60;
   const [countdown, setCountdown] = useState(initialCountdown);
 
   return (
@@ -19,7 +19,7 @@ const App: React.FC = () => {
           element={
             <>
               <Header />
-              <Home />
+              <Home setCountdown={setCountdown} />
             </>
           }
         />
@@ -30,7 +30,6 @@ const App: React.FC = () => {
               <Header />
               <GameBoard
                 countdown={countdown}
-                initialCountdown={initialCountdown}
               />
               <CountDown countdown={countdown} setCountdown={setCountdown} />
             </>
