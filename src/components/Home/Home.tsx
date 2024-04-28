@@ -4,7 +4,11 @@ import { Link } from "react-router-dom";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import logo from "../../assets/Black and White Gaming Logo .jpg";
 
-export const Home = () => {
+interface HomeProps {
+  setCountdown: React.Dispatch<React.SetStateAction<number>>;
+}
+
+export const Home: React.FC<HomeProps> = ({ setCountdown }) => {
   return (
     <div className="main-board-container">
       <div>
@@ -13,7 +17,11 @@ export const Home = () => {
       <div>
         {" "}
         <Link to="/gameboard">
-          <Button variant="contained" size="large">
+          <Button
+            variant="contained"
+            size="large"
+            onClick={() => setCountdown(60)}
+          >
             Start game
           </Button>
         </Link>
