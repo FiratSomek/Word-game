@@ -6,6 +6,12 @@ import { GameBoard } from "./components/GameBoard/GameBoard";
 import { AddNewQuizForm } from "./components/AddNewQuizForm/AddNewQuizForm";
 
 const App: React.FC = () => {
+<<<<<<< Updated upstream
+=======
+  const initialCountdown = 60;
+  const [countdown, setCountdown] = useState(initialCountdown);
+
+>>>>>>> Stashed changes
   return (
     <div className="App">
       <Routes>
@@ -14,7 +20,7 @@ const App: React.FC = () => {
           element={
             <>
               <Header />
-              <Home />
+              <Home setCountdown={setCountdown} />
             </>
           }
         />
@@ -23,7 +29,12 @@ const App: React.FC = () => {
           element={
             <>
               <Header />
+<<<<<<< Updated upstream
               <GameBoard />
+=======
+              <GameBoard countdown={countdown} />
+              <CountDown countdown={countdown} setCountdown={setCountdown} />
+>>>>>>> Stashed changes
             </>
           }
         />
