@@ -98,6 +98,7 @@ export const GameBoard = () => {
     }
     setAnswer("");
   };
+
   const handleReset = () => {
     setQuestions(
       quizData.map((q) => ({ ...q, isAnswered: false, classname: undefined }))
