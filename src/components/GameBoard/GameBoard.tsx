@@ -15,14 +15,13 @@ import Brightness1Icon from "@mui/icons-material/Brightness1";
 
 interface CountdownProps {
   countdown: number;
-  initialCountdown: number;
 }
 
 export const GameBoard: React.FC<CountdownProps> = ({
   countdown,
-  initialCountdown,
 }) => {
   const [questions, setQuestions] = useState<QuizDataItem[]>(quizData);
+  const [totalCompletedQuestions, setTotalCompletedQuestions] = useState(0);
   const [currentDescriptionId, setCurrentDescriptionId] = useState<number>(1);
   const [answer, setAnswer] = useState("");
   const [showResult, setShowResult] = useState(false);
@@ -32,6 +31,10 @@ export const GameBoard: React.FC<CountdownProps> = ({
       setShowResult(true);
     }
   }, [countdown]);
+
+  useEffect(() => {
+    if (totalCompletedQuestions === questions.length) setShowResult(true);
+  }, [totalCompletedQuestions]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +54,7 @@ export const GameBoard: React.FC<CountdownProps> = ({
         } else return question;
       });
       setQuestions(updatedQuestions);
+      setTotalCompletedQuestions(prev => prev + 1);
     } else if (!isAnswerEmpty) {
       const updatedQuestions: QuizDataItem[] = questions.map((question) => {
         if (question.id === currentDescriptionId) {
@@ -58,6 +62,7 @@ export const GameBoard: React.FC<CountdownProps> = ({
         } else return question;
       });
       setQuestions(updatedQuestions);
+      setTotalCompletedQuestions(prev => prev + 1);
     } else {
       const updatedQuestions: QuizDataItem[] = questions.map((question) => {
         if (question.id === currentDescriptionId) {
@@ -129,7 +134,7 @@ export const GameBoard: React.FC<CountdownProps> = ({
             {
               questions.filter(
                 (question) => question.id === currentDescriptionId
-              )[0].description
+              )[0]?.description || ''
             }
           </Typography>
         </div>
