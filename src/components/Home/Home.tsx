@@ -1,4 +1,4 @@
-import { Avatar, Button, Container, Typography } from "@mui/material";
+import { Button } from "@mui/material";
 import "./styles.css";
 import { Link } from "react-router-dom";
 import EditNoteIcon from "@mui/icons-material/EditNote";

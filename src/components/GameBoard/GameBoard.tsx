@@ -1,204 +1,207 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { quizData } from "../../data";
 import { QuizDataItem } from "../../data";
 import "./styles.css";
-import { Typography } from "@mui/material";
-import { Preview } from "@mui/icons-material";
-
-<<<<<<< Updated upstream
-interface ClassItem {
-  id: number;
-  class: string;
-}
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Typography,
+} from "@mui/material";
+import Brightness1Icon from "@mui/icons-material/Brightness1";
+import { Link } from "react-router-dom";
 
 export const GameBoard = () => {
   const [questions, setQuestions] = useState<QuizDataItem[]>(quizData);
   const [currentDescriptionIndex, setCurrentDescriptionIndex] = useState(0);
   const [answer, setAnswer] = useState("");
-  const [getClass, setGetClass] = useState<ClassItem[]>([]);
+  const [isFirstRound, setIsFirstRound] = useState(true);
+  const [isGameComplete, setIsGameComplete] = useState(false);
+  const [showAllAnswer, setShowAllAnswer] = useState(false);
+
+  useEffect(() => {
+    const unansweredQuestions = questions.filter((q) => !q.isAnswered);
+    if (unansweredQuestions.length === 0) {
+      setIsGameComplete(true);
+    }
+  }, [questions]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const getPassClass = () => {
-      return getClass.filter((item) => item.class === "pass");
-    };
 
-    const passClasses = getPassClass();
-    console.log(passClasses);
-
-    if (currentDescriptionIndex !== quizData.length - 1) {
-      if (answer.trim() !== "") {
-        const isAnswerCorrect =
-          answer.trim().toLowerCase() ===
-          questions[currentDescriptionIndex].word.trim().toLowerCase();
-        if (isAnswerCorrect) {
-          setGetClass((prevClasses) => [
-            ...prevClasses,
-            {
-              id: questions[currentDescriptionIndex].id,
-              class: "correct",
-            },
-          ]);
-        } else {
-          setGetClass((prevClasses) => [
-            ...prevClasses,
-            {
-              id: questions[currentDescriptionIndex].id,
-              class: "wrong",
-            },
-          ]);
-=======
-interface CountdownProps {
-  countdown: number;
-}
-
-export const GameBoard: React.FC<CountdownProps> = ({ countdown }) => {
-  const [questions, setQuestions] = useState<QuizDataItem[]>(quizData);
-  const [totalCompletedQuestions, setTotalCompletedQuestions] = useState(0);
-  const [currentDescriptionId, setCurrentDescriptionId] = useState<number>(1);
-  const [answer, setAnswer] = useState("");
-  const [showResult, setShowResult] = useState(false);
-  const [showAnswers, setShowAnswers] = useState(false);
-
-  useEffect(() => {
-    if (countdown === 0) {
-      setShowResult(true);
+    if (currentDescriptionIndex === questions.length - 1) {
+      setIsFirstRound(false);
     }
-  }, [countdown]);
-  useEffect(() => {
-    if (totalCompletedQuestions === questions.length) setShowResult(true);
-  }, [totalCompletedQuestions]);
-
-  useEffect(() => {
-    if (answer === "bitir") {
-      setTimeout(() => {
-        setShowResult(true);
-      }, 2000);
-    }
-  }, [answer]);
-
-  // Cevabı kontrol ediyor
-  const isAnswerCorrect =
-    answer.trim().toLowerCase() ===
-    questions
-      .filter((question) => question.id === currentDescriptionId)[0]
-      .word.trim()
-      .toLowerCase();
-
-  const isAnswerEmpty = answer.trim().length === 0;
-
-  // Soruya doğru, yanlış veya pass durumuna göre class ekliyor
-  const updateQuestionClass = (
-    questions: QuizDataItem[],
-    questionId: number,
-    newClass: string
-  ): QuizDataItem[] => {
-    return questions.map((question) => {
-      if (question.id === questionId) {
-        return { ...question, class: newClass };
+    if (answer.trim().length > 0) {
+      const isAnswerCorrect =
+        answer.trim().toLowerCase() ===
+        questions[currentDescriptionIndex].word.trim().toLowerCase();
+      // Answer is correct
+      if (isAnswerCorrect) {
+        setQuestions((prev) => [
+          ...prev.map((q) => {
+            if (q.id === currentDescriptionIndex) {
+              q.classname = "correct";
+              q.isAnswered = true;
+            }
+            return q;
+          }),
+        ]);
+        // Answer is not correct
+      } else {
+        setQuestions((prev) => [
+          ...prev.map((q) => {
+            if (q.id === currentDescriptionIndex) {
+              q.classname = "wrong";
+              q.isAnswered = true;
+            }
+            return q;
+          }),
+        ]);
       }
-      return question;
-    });
-  };
-
-  // Verilen cevapları kontrol edip kategorize ediyoruz
-
-  const checkAnswer = () => {
-    if (isAnswerCorrect) {
-      const updatedQuestions: QuizDataItem[] = updateQuestionClass(
-        questions,
-        currentDescriptionId,
-        "correct"
-      );
-      setQuestions(updatedQuestions);
-      setTotalCompletedQuestions((prev) => prev + 1);
-    } else if (!isAnswerEmpty) {
-      const updatedQuestions: QuizDataItem[] = updateQuestionClass(
-        questions,
-        currentDescriptionId,
-        "wrong"
-      );
-      setQuestions(updatedQuestions);
-      setTotalCompletedQuestions((prev) => prev + 1);
+      // No answer
     } else {
-      const updatedQuestions: QuizDataItem[] = updateQuestionClass(
-        questions,
-        currentDescriptionId,
-        "pass"
-      );
-      setQuestions(updatedQuestions);
+      setQuestions((prev) => [
+        ...prev.map((q) => {
+          if (q.id === currentDescriptionIndex) {
+            q.classname = "pass";
+          }
+          return q;
+        }),
+      ]);
+    }
+
+    if (isFirstRound && currentDescriptionIndex < questions.length - 1) {
+      setCurrentDescriptionIndex((prev) => prev + 1);
+    } else {
+      const passedQuestionIds = questions
+        .filter((q) => !q.isAnswered)
+        .map((q) => q.id);
+
+      // The passed question is the last in the list
+      if (
+        currentDescriptionIndex ===
+        passedQuestionIds[passedQuestionIds.length - 1]
+      ) {
+        setCurrentDescriptionIndex(passedQuestionIds[0]);
+      } else {
+        const indexOfCurrentPassedQuestion = passedQuestionIds.indexOf(
+          currentDescriptionIndex
+        );
+
+        setCurrentDescriptionIndex(
+          passedQuestionIds[indexOfCurrentPassedQuestion + 1]
+        );
+      }
     }
     setAnswer("");
   };
-
-  //Verilen cevaptan sonra oyunun ilerlemesini yada soruların hepsi cevaplandıysa oyunun sonuçlandırmasını yapıyoruz
-
-  const nextQuestion = () => {
-    if (currentDescriptionId !== questions.length) {
-      const currentQuestion = questions.filter(
-        (q) => q.id === currentDescriptionId
-      )[0];
-      if (currentQuestion.class === "pass") {
-        const passedQuestionIds = questions
-          .filter((q) => q.class === "pass")
-          .map((q) => q.id)
-          .sort((a, b) => a - b);
-
-        if (passedQuestionIds.length > 0) {
-          const currentPassedQuestionIndex = passedQuestionIds.findIndex(
-            (id) => id === currentQuestion.id
-          );
-          const nextPassedQuestionId =
-            passedQuestionIds[currentPassedQuestionIndex + 1];
-          setCurrentDescriptionId(nextPassedQuestionId);
->>>>>>> Stashed changes
-        }
-      } else {
-        setGetClass((prevClasses) => [
-          ...prevClasses,
-          {
-            id: questions[currentDescriptionIndex].id,
-            class: "pass",
-          },
-        ]);
-      }
-      setAnswer("");
-      setCurrentDescriptionIndex((prevIndex) => prevIndex + 1);
-    } else {
-    }
-    // else if (
-    //   currentDescriptionIndex === quizData.length - 1 &&
-    //   passClasses.length > 0
-    // ) {
-    // } else if (
-    //   currentDescriptionIndex === quizData.length - 1 &&
-    //   passClasses.length === 0
-    // ) {
-    // }
+  const handleReset = () => {
+    setQuestions(
+      quizData.map((q) => ({ ...q, isAnswered: false, classname: undefined }))
+    );
+    setCurrentDescriptionIndex(0);
+    setAnswer("");
+    setIsGameComplete(false);
+    setIsFirstRound(true);
   };
 
-<<<<<<< Updated upstream
-=======
-  // OYUN İLERLEMESİNİ SAĞLAYAN FONKİSYONU BURADA BELİRTİYORUZ
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    checkAnswer();
-    nextQuestion();
-  };
-
->>>>>>> Stashed changes
-  return (
+  return isGameComplete ? (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      {showAllAnswer ? (
+        <div className="answers-page">
+          <Typography variant="h3">Answers</Typography>
+          <ul>
+            {questions.map((q) => (
+              <li key={q.id}>
+                <Typography className="answers-list">
+                  <Brightness1Icon
+                    sx={{
+                      color:
+                        q.classname === "correct"
+                          ? "green"
+                          : q.classname === "wrong"
+                          ? "red"
+                          : q.classname === "pass"
+                          ? "yellow"
+                          : "inherit",
+                      marginRight: "10px",
+                    }}
+                  />
+                  {q.firstLetter} -{" "}
+                  <p
+                    style={{
+                      color:
+                        q.classname === "correct"
+                          ? "green"
+                          : q.classname === "wrong"
+                          ? "red"
+                          : q.classname === "pass"
+                          ? "yellow"
+                          : "inherit",
+                    }}
+                  >
+                    {q.word}
+                  </p>{" "}
+                  - {q.description}
+                </Typography>
+              </li>
+            ))}
+          </ul>
+          <div>
+            <Button onClick={() => setShowAllAnswer(false)}>Back</Button>
+            <Link to={"/"} onClick={handleReset}>
+              <Button color="primary">Home</Button>
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="results-page">
+          <div>
+            <Typography variant="h3">Results</Typography>
+            <Typography className="answer-marks">
+              <Brightness1Icon sx={{ color: "green", marginRight: "10px" }} />
+              Correct Answers:{" "}
+              {questions.filter((q) => q.classname === "correct").length}
+            </Typography>
+            <Typography className="answer-marks">
+              <Brightness1Icon sx={{ color: "red", marginRight: "10px" }} />
+              Wrong Answers:{" "}
+              {questions.filter((q) => q.classname === "wrong").length}
+            </Typography>
+            <Typography className="answer-marks">
+              <Brightness1Icon sx={{ color: "yellow", marginRight: "10px" }} />
+              Passed Answers:{" "}
+              {questions.filter((q) => q.classname === "pass").length}
+            </Typography>
+          </div>
+          <div style={{ display: "flex" }}>
+            <Button onClick={() => setShowAllAnswer(true)}>
+              Correct Answers
+            </Button>
+            <Link to={"/"} onClick={handleReset}>
+              <Button>Home</Button>
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  ) : (
     <div>
       <div>
         <ul className="letters-list">
           {questions.map((question) => (
             <li
               key={question.id}
-              className={`letters ${
-                getClass.find((item) => item.id === question.id)?.class || ""
-              } ${
-                question.id === questions[currentDescriptionIndex].id
+              className={`letters ${question.classname || ""} ${
+                question.id === currentDescriptionIndex
                   ? "selected-letter"
                   : "transparent"
               } `}
@@ -211,13 +214,7 @@ export const GameBoard: React.FC<CountdownProps> = ({ countdown }) => {
       <div>
         <div className="descriptons">
           <Typography className="description">
-<<<<<<< Updated upstream
             {questions[currentDescriptionIndex].description}
-=======
-            {questions.filter(
-              (question) => question.id === currentDescriptionId
-            )[0]?.description || ""}
->>>>>>> Stashed changes
           </Typography>
         </div>
       </div>
@@ -232,33 +229,49 @@ export const GameBoard: React.FC<CountdownProps> = ({ countdown }) => {
           />
         </form>
       </div>
-<<<<<<< Updated upstream
-=======
-      <Dialog open={showResult} onClose={() => setShowResult(false)}>
+    </div>
+  );
+};
+
+{
+  /* Yarışma sonucunun olduğu sayfa */
+}
+{
+  /* <Dialog open={isGameComplete} onClose={() => setIsGameComplete(false)}>
         <DialogTitle>Results</DialogTitle>
         <DialogContent>
           <Typography className="answer-marks">
             <Brightness1Icon sx={{ color: "green", marginRight: "10px" }} />
             Correct Answers:{" "}
-            {questions.filter((q) => q.class === "correct").length}
+            {questions.filter((q) => q.classname === "correct").length}
           </Typography>
           <Typography className="answer-marks">
             <Brightness1Icon sx={{ color: "red", marginRight: "10px" }} />
-            Wrong Answers: {questions.filter((q) => q.class === "wrong").length}
+            Wrong Answers:{" "}
+            {questions.filter((q) => q.classname === "wrong").length}
           </Typography>
           <Typography className="answer-marks">
             <Brightness1Icon sx={{ color: "yellow", marginRight: "10px" }} />
-            Passed Answers: {questions.filter((q) => q.class === "pass").length}
+            Passed Answers:{" "}
+            {questions.filter((q) => q.classname === "pass").length}
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowAnswers(true)}>Correct Answers</Button>
-          <Link to={"/"}>
+          <Button onClick={() => setShowAllAnswer(true)}>
+            Correct Answers
+          </Button>
+          <Link to={"/"} onClick={handleReset}>
             <Button color="primary">Home</Button>
           </Link>
         </DialogActions>
-      </Dialog>
-      <Dialog open={showAnswers} onClose={() => setShowAnswers(false)}>
+      </Dialog> */
+}
+
+{
+  /* Tüm soruların cevaplarının gösterildiği sayfa */
+}
+{
+  /* <Dialog open={showAllAnswer} onClose={() => setShowAllAnswer(false)}>
         <DialogTitle sx={{ textAlign: "center" }}>Answers</DialogTitle>
         <DialogContent
           sx={{
@@ -274,11 +287,11 @@ export const GameBoard: React.FC<CountdownProps> = ({ countdown }) => {
                   <Brightness1Icon
                     sx={{
                       color:
-                        q.class === "correct"
+                        q.classname === "correct"
                           ? "green"
-                          : q.class === "wrong"
+                          : q.classname === "wrong"
                           ? "red"
-                          : q.class === "pass"
+                          : q.classname === "pass"
                           ? "yellow"
                           : "inherit",
                       marginRight: "10px",
@@ -289,12 +302,9 @@ export const GameBoard: React.FC<CountdownProps> = ({ countdown }) => {
               </li>
             ))}
           </ul>
-          <Link to={"/"}>
+          <Link to={"/"} onClick={handleReset}>
             <Button color="primary">Home</Button>
           </Link>
         </DialogContent>
-      </Dialog>
->>>>>>> Stashed changes
-    </div>
-  );
-};
+      </Dialog> */
+}
