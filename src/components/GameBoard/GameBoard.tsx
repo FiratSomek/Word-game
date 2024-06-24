@@ -13,8 +13,7 @@ import {
 import Brightness1Icon from "@mui/icons-material/Brightness1";
 import { Link } from "react-router-dom";
 
-export const GameBoard = () => {
-  const [questions, setQuestions] = useState<QuizDataItem[]>(quizData);
+export const GameBoard = ({questions, setQuestions}: {questions: QuizDataItem[], setQuestions: React.Dispatch<React.SetStateAction<QuizDataItem[]>>}) => {
   const [currentDescriptionIndex, setCurrentDescriptionIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [isFirstRound, setIsFirstRound] = useState(true);
