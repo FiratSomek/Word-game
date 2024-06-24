@@ -15,7 +15,6 @@ const App: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    console.log(location.pathname);
     setCountdown(initialCountdown);
     setQuestions([...quizData.map(item => ({ ...item, isAnswered: false, classname: undefined }))]);
   }, [location.pathname]);
