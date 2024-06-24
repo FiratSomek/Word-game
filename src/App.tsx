@@ -4,8 +4,13 @@ import "./styles.css";
 import { Home } from "./components/Home/Home";
 import { GameBoard } from "./components/GameBoard/GameBoard";
 import { AddNewQuizForm } from "./components/AddNewQuizForm/AddNewQuizForm";
+import { CountDown } from "./CountDown";
+import React, { useState } from "react";
 
 const App: React.FC = () => {
+  const initialCountdown = 10;
+  const [countdown, setCountdown] = useState(initialCountdown);
+
   return (
     <div className="App">
       <Routes>
@@ -23,7 +28,11 @@ const App: React.FC = () => {
           element={
             <>
               <Header />
-              <GameBoard />
+              <GameBoard
+                countdown={countdown}
+                initialCountdown={initialCountdown}
+              />
+              <CountDown countdown={countdown} setCountdown={setCountdown} />
             </>
           }
         />

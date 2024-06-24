@@ -34,7 +34,8 @@
   margin-top: 50px;
 }
 .selected-letter {
-  background-color: #1976d2;
+  /* background-color: #1976d2; */
+  background-color: black;
   color: #fff;
 }
 .transparent {
@@ -72,4 +73,9 @@
   background-color: rgb(249, 241, 0);
   box-shadow: 0 0 2px 3px rgb(249, 241, 0);
   border: none;
+}
+.answer-marks {
+  display: flex;
+  padding: 5px;
+  margin: 5px;
 }

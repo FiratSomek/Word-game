@@ -3,6 +3,7 @@ export interface QuizDataItem {
   word: string;
   firstLetter: string;
   description: string;
+  class?: string;
 }
 
 export const quizData: QuizDataItem[] = [

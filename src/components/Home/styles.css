@@ -23,3 +23,16 @@
   font-size: large;
   font-weight: bold;
 }
+.add-new-quiz-button:hover {
+  filter: drop-shadow(15px 5px 15px gray);
+}
+.logo {
+  width: 75%;
+  aspect-ratio: 3/2;
+  object-fit: contain;
+  mix-blend-mode: color-burn;
+}
+.logo:hover {
+  filter: drop-shadow(15px 5px 15px black);
+  /* box-shadow: 15px 5px 15px black; */
+}

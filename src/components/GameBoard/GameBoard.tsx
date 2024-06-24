@@ -1,76 +1,108 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { quizData } from "../../data";
 import { QuizDataItem } from "../../data";
 import "./styles.css";
-import { Typography } from "@mui/material";
-import { Preview } from "@mui/icons-material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Typography,
+} from "@mui/material";
+import { Link } from "react-router-dom";
+import Brightness1Icon from "@mui/icons-material/Brightness1";
 
-interface ClassItem {
-  id: number;
-  class: string;
+interface CountdownProps {
+  countdown: number;
+  initialCountdown: number;
 }
 
-export const GameBoard = () => {
+export const GameBoard: React.FC<CountdownProps> = ({
+  countdown,
+  initialCountdown,
+}) => {
   const [questions, setQuestions] = useState<QuizDataItem[]>(quizData);
-  const [currentDescriptionIndex, setCurrentDescriptionIndex] = useState(0);
+  const [currentDescriptionId, setCurrentDescriptionId] = useState<number>(1);
   const [answer, setAnswer] = useState("");
-  const [getClass, setGetClass] = useState<ClassItem[]>([]);
+  const [showResult, setShowResult] = useState(false);
+
+  useEffect(() => {
+    if (countdown === 0) {
+      setShowResult(true);
+    }
+  }, [countdown]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const getPassClass = () => {
-      return getClass.filter((item) => item.class === "pass");
-    };
 
-    const passClasses = getPassClass();
-    console.log(passClasses);
+    const isAnswerCorrect =
+      answer.trim().toLowerCase() ===
+      questions
+        .filter((question) => question.id === currentDescriptionId)[0]
+        .word.trim()
+        .toLowerCase();
+    const isAnswerEmpty = answer.trim().length === 0;
 
-    if (currentDescriptionIndex !== quizData.length - 1) {
-      if (answer.trim() !== "") {
-        const isAnswerCorrect =
-          answer.trim().toLowerCase() ===
-          questions[currentDescriptionIndex].word.trim().toLowerCase();
-        if (isAnswerCorrect) {
-          setGetClass((prevClasses) => [
-            ...prevClasses,
-            {
-              id: questions[currentDescriptionIndex].id,
-              class: "correct",
-            },
-          ]);
-        } else {
-          setGetClass((prevClasses) => [
-            ...prevClasses,
-            {
-              id: questions[currentDescriptionIndex].id,
-              class: "wrong",
-            },
-          ]);
+    if (isAnswerCorrect) {
+      const updatedQuestions: QuizDataItem[] = questions.map((question) => {
+        if (question.id === currentDescriptionId) {
+          return { ...question, class: "correct" };
+        } else return question;
+      });
+      setQuestions(updatedQuestions);
+    } else if (!isAnswerEmpty) {
+      const updatedQuestions: QuizDataItem[] = questions.map((question) => {
+        if (question.id === currentDescriptionId) {
+          return { ...question, class: "wrong" };
+        } else return question;
+      });
+      setQuestions(updatedQuestions);
+    } else {
+      const updatedQuestions: QuizDataItem[] = questions.map((question) => {
+        if (question.id === currentDescriptionId) {
+          return { ...question, class: "pass" };
+        } else return question;
+      });
+      setQuestions(updatedQuestions);
+    }
+    setAnswer("");
+
+    if (currentDescriptionId !== questions.length) {
+      const currentQuestion = questions.filter(
+        (q) => q.id === currentDescriptionId
+      )[0];
+      if (currentQuestion.class === "pass") {
+        const passedQuestionIds = questions
+          .filter((q) => q.class === "pass")
+          .map((q) => q.id)
+          .sort((a, b) => a - b);
+
+        if (passedQuestionIds.length > 0) {
+          const currentPassedQuestionIndex = passedQuestionIds.findIndex(
+            (id) => id === currentQuestion.id
+          );
+          const nextPassedQuestionId =
+            passedQuestionIds[currentPassedQuestionIndex + 1];
+          setCurrentDescriptionId(nextPassedQuestionId);
         }
       } else {
-        setGetClass((prevClasses) => [
-          ...prevClasses,
-          {
-            id: questions[currentDescriptionIndex].id,
-            class: "pass",
-          },
-        ]);
+        setCurrentDescriptionId(currentDescriptionId + 1);
       }
-      setAnswer("");
-      setCurrentDescriptionIndex((prevIndex) => prevIndex + 1);
     } else {
+      const passedQuestionIds = questions
+        .filter((q) => q.class === "pass")
+        .map((q) => q.id)
+        .sort((a, b) => a - b);
+      if (passedQuestionIds.length > 0) {
+        const nextPassedQuestionId = passedQuestionIds[0];
+        setCurrentDescriptionId(nextPassedQuestionId);
+      } else {
+        console.log("Game over!");
+        setShowResult(true);
+      }
     }
-    // else if (
-    //   currentDescriptionIndex === quizData.length - 1 &&
-    //   passClasses.length > 0
-    // ) {
-    // } else if (
-    //   currentDescriptionIndex === quizData.length - 1 &&
-    //   passClasses.length === 0
-    // ) {
-    // }
   };
-
   return (
     <div>
       <div>
@@ -78,10 +110,10 @@ export const GameBoard = () => {
           {questions.map((question) => (
             <li
               key={question.id}
-              className={`letters ${
-                getClass.find((item) => item.id === question.id)?.class || ""
-              } ${
-                question.id === questions[currentDescriptionIndex].id
+              className={`letters ${question?.class || ""}
+              ${question?.class || ""}
+              ${
+                question.id === currentDescriptionId
                   ? "selected-letter"
                   : "transparent"
               } `}
@@ -94,7 +126,11 @@ export const GameBoard = () => {
       <div>
         <div className="descriptons">
           <Typography className="description">
-            {questions[currentDescriptionIndex].description}
+            {
+              questions.filter(
+                (question) => question.id === currentDescriptionId
+              )[0].description
+            }
           </Typography>
         </div>
       </div>
@@ -109,6 +145,30 @@ export const GameBoard = () => {
           />
         </form>
       </div>
+      <Dialog open={showResult} onClose={() => setShowResult(false)}>
+        <DialogTitle>Results</DialogTitle>
+        <DialogContent>
+          <Typography className="answer-marks">
+            <Brightness1Icon sx={{ color: "green", marginRight: "10px" }} />
+            Correct Answers:{" "}
+            {questions.filter((q) => q.class === "correct").length}
+          </Typography>
+          <Typography className="answer-marks">
+            <Brightness1Icon sx={{ color: "red", marginRight: "10px" }} />
+            Wrong Answers: {questions.filter((q) => q.class === "wrong").length}
+          </Typography>
+          <Typography className="answer-marks">
+            <Brightness1Icon sx={{ color: "yellow", marginRight: "10px" }} />
+            Passed Answers: {questions.filter((q) => q.class === "pass").length}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button>Correct Answers</Button>
+          <Link to={"/"}>
+            <Button color="primary">Home</Button>
+          </Link>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
