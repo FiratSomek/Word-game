@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { quizData } from "../../data";
 import { QuizDataItem } from "../../data";
 import "./styles.css";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Typography,
-} from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import Brightness1Icon from "@mui/icons-material/Brightness1";
 import { Link } from "react-router-dom";
 
-export const GameBoard = () => {
-  const [questions, setQuestions] = useState<QuizDataItem[]>(quizData);
+export const GameBoard = ({
+  questions,
+  setQuestions,
+  countdown,
+  setCountdown,
+}: {
+  questions: QuizDataItem[];
+  setQuestions: React.Dispatch<React.SetStateAction<QuizDataItem[]>>;
+  countdown: number;
+  setCountdown: React.Dispatch<React.SetStateAction<number>>;
+}) => {
   const [currentDescriptionIndex, setCurrentDescriptionIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [isFirstRound, setIsFirstRound] = useState(true);
@@ -24,9 +25,19 @@ export const GameBoard = () => {
   useEffect(() => {
     const unansweredQuestions = questions.filter((q) => !q.isAnswered);
     if (unansweredQuestions.length === 0) {
-      setIsGameComplete(true);
+      setTimeout(() => {
+        setIsGameComplete(true);
+        setCountdown(0);
+      }, 500);
     }
-  }, [questions]);
+  }, [questions, countdown]);
+  useEffect(() => {
+    if (countdown === 0) {
+      setTimeout(() => {
+        setIsGameComplete(true);
+      }, 1000);
+    }
+  }, [countdown]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,13 +112,15 @@ export const GameBoard = () => {
 
   const handleReset = () => {
     setQuestions(
-      quizData.map((q) => ({ ...q, isAnswered: false, classname: undefined }))
+      questions.map((q) => ({ ...q, isAnswered: false, classname: undefined }))
     );
     setCurrentDescriptionIndex(0);
     setAnswer("");
     setIsGameComplete(false);
     setIsFirstRound(true);
   };
+  const currentQuestion =
+    questions.length > 0 ? questions[currentDescriptionIndex] : null;
 
   return isGameComplete ? (
     <div
@@ -136,7 +149,6 @@ export const GameBoard = () => {
                       marginRight: "10px",
                     }}
                   />
-                  {q.firstLetter} -{" "}
                   <p
                     style={{
                       color:
@@ -149,9 +161,8 @@ export const GameBoard = () => {
                           : "inherit",
                     }}
                   >
-                    {q.word}
+                    {q.firstLetter} - {q.word}- {q.description}
                   </p>{" "}
-                  - {q.description}
                 </Typography>
               </li>
             ))}
@@ -215,7 +226,7 @@ export const GameBoard = () => {
       <div>
         <div className="descriptons">
           <Typography className="description">
-            {questions[currentDescriptionIndex].description}
+            {currentQuestion?.description}
           </Typography>
         </div>
       </div>
@@ -233,79 +244,3 @@ export const GameBoard = () => {
     </div>
   );
 };
-
-{
-  /* Yarışma sonucunun olduğu sayfa */
-}
-{
-  /* <Dialog open={isGameComplete} onClose={() => setIsGameComplete(false)}>
-        <DialogTitle>Results</DialogTitle>
-        <DialogContent>
-          <Typography className="answer-marks">
-            <Brightness1Icon sx={{ color: "green", marginRight: "10px" }} />
-            Correct Answers:{" "}
-            {questions.filter((q) => q.classname === "correct").length}
-          </Typography>
-          <Typography className="answer-marks">
-            <Brightness1Icon sx={{ color: "red", marginRight: "10px" }} />
-            Wrong Answers:{" "}
-            {questions.filter((q) => q.classname === "wrong").length}
-          </Typography>
-          <Typography className="answer-marks">
-            <Brightness1Icon sx={{ color: "yellow", marginRight: "10px" }} />
-            Passed Answers:{" "}
-            {questions.filter((q) => q.classname === "pass").length}
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowAllAnswer(true)}>
-            Correct Answers
-          </Button>
-          <Link to={"/"} onClick={handleReset}>
-            <Button color="primary">Home</Button>
-          </Link>
-        </DialogActions>
-      </Dialog> */
-}
-
-{
-  /* Tüm soruların cevaplarının gösterildiği sayfa */
-}
-{
-  /* <Dialog open={showAllAnswer} onClose={() => setShowAllAnswer(false)}>
-        <DialogTitle sx={{ textAlign: "center" }}>Answers</DialogTitle>
-        <DialogContent
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <ul>
-            {questions.map((q) => (
-              <li key={q.id}>
-                <Typography className="answers-list">
-                  <Brightness1Icon
-                    sx={{
-                      color:
-                        q.classname === "correct"
-                          ? "green"
-                          : q.classname === "wrong"
-                          ? "red"
-                          : q.classname === "pass"
-                          ? "yellow"
-                          : "inherit",
-                      marginRight: "10px",
-                    }}
-                  />
-                  {q.firstLetter} - {q.word} - {q.description}
-                </Typography>
-              </li>
-            ))}
-          </ul>
-          <Link to={"/"} onClick={handleReset}>
-            <Button color="primary">Home</Button>
-          </Link>
-        </DialogContent>
-      </Dialog> */
-}
